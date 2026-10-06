@@ -1,5 +1,9 @@
 from ai_test_case_generator.pipeline.generator import generate
-from ai_test_case_generator.schemas.generator import GeneratedTestCase, GeneratorInput, GeneratorOutput
+from ai_test_case_generator.schemas.generator import (
+    GeneratedTestCase,
+    GeneratorInput,
+    GeneratorOutput,
+)
 from tests.fixtures.fake_llm_client import FakeLLMClient
 from tests.fixtures.sample_spec import build_sample_spec
 

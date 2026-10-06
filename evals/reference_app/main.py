@@ -29,9 +29,8 @@ def create_app() -> FastAPI:
 
     @app.post("/applicants", status_code=201)
     def create_applicant(payload: ApplicantCreate):
-        if not is_bug_active("missing_required_field_check"):
-            if payload.annual_income <= 0:
-                raise HTTPException(status_code=422, detail="annual_income must be positive")
+        if not is_bug_active("missing_required_field_check") and payload.annual_income <= 0:
+            raise HTTPException(status_code=422, detail="annual_income must be positive")
         applicant_id = store.new_id("applicant")
         applicant = Applicant(id=applicant_id, **payload.model_dump())
         store.applicants[applicant_id] = applicant
@@ -75,12 +74,10 @@ def create_app() -> FastAPI:
         loan = store.loan_applications.get(loan_id)
         if loan is None:
             raise HTTPException(status_code=404, detail="loan application not found")
-        if not is_bug_active("auth_bypass"):
-            if x_admin_token != ADMIN_TOKEN:
-                raise HTTPException(status_code=403, detail="admin token required")
-        if not is_bug_active("wrong_status_transition"):
-            if loan.status != LoanStatus.PENDING:
-                raise HTTPException(status_code=409, detail="loan is not pending")
+        if not is_bug_active("auth_bypass") and x_admin_token != ADMIN_TOKEN:
+            raise HTTPException(status_code=403, detail="admin token required")
+        if not is_bug_active("wrong_status_transition") and loan.status != LoanStatus.PENDING:
+            raise HTTPException(status_code=409, detail="loan is not pending")
         loan.status = LoanStatus.APPROVED
         return loan.model_dump()
 
@@ -96,7 +93,7 @@ def create_app() -> FastAPI:
                     id=store.new_id("disbursement"),
                     loan_application_id=loan_id,
                     amount=loan.amount,
-                    disbursed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    disbursed_at=datetime.datetime.now(datetime.UTC).isoformat(),
                 )
                 store.disbursements[loan_id].append(disbursement)
                 return disbursement.model_dump()
@@ -107,7 +104,7 @@ def create_app() -> FastAPI:
             id=store.new_id("disbursement"),
             loan_application_id=loan_id,
             amount=loan.amount,
-            disbursed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            disbursed_at=datetime.datetime.now(datetime.UTC).isoformat(),
         )
         store.disbursements.setdefault(loan_id, []).append(disbursement)
         loan.status = LoanStatus.DISBURSED

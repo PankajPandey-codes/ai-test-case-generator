@@ -1,4 +1,4 @@
-from typing import Protocol, Type, TypeVar
+from typing import Protocol, TypeVar
 
 from pydantic import BaseModel
 
@@ -11,7 +11,7 @@ class LLMClient(Protocol):
         *,
         system: str,
         messages: list[dict],
-        output_format: Type[T],
+        output_format: type[T],
         effort: str = "high",
     ) -> T: ...
 
@@ -44,7 +44,7 @@ class AnthropicLLMClient:
         *,
         system: str,
         messages: list[dict],
-        output_format: Type[T],
+        output_format: type[T],
         effort: str = "high",
     ) -> T:
         response = self._client.messages.parse(

@@ -1,4 +1,4 @@
-from typing import Type, TypeVar
+from typing import TypeVar
 
 from pydantic import BaseModel
 
@@ -22,7 +22,7 @@ class FakeLLMClient:
         *,
         system: str,
         messages: list[dict],
-        output_format: Type[T],
+        output_format: type[T],
         effort: str = "high",
     ) -> T:
         self.calls.append(

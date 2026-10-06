@@ -21,6 +21,7 @@ def _run_pytest(test_file_path: str, bug: str | None) -> set[str]:
         capture_output=True,
         text=True,
         env=env,
+        check=False,
     )
     failing = set()
     for line in result.stdout.splitlines():
