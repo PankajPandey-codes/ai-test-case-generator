@@ -1,5 +1,4 @@
 import datetime
-from typing import Optional
 
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import JSONResponse
@@ -70,7 +69,7 @@ def create_app() -> FastAPI:
         return loan.model_dump()
 
     @app.post("/loan-applications/{loan_id}/approve")
-    def approve_loan_application(loan_id: str, x_admin_token: Optional[str] = Header(default=None)):
+    def approve_loan_application(loan_id: str, x_admin_token: str | None = Header(default=None)):
         loan = store.loan_applications.get(loan_id)
         if loan is None:
             raise HTTPException(status_code=404, detail="loan application not found")
