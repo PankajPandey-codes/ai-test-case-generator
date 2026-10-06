@@ -1,8 +1,7 @@
 from pathlib import Path
 
-from evals.runner import FIXTURES_DIR
-from evals.runner import FileHarness
 from ai_test_case_generator.schemas.generator import GeneratorOutput
+from evals.runner import FIXTURES_DIR, FileHarness
 
 
 def test_file_harness_writes_runs_and_cleans_up():
