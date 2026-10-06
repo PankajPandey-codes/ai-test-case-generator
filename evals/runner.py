@@ -1,9 +1,14 @@
 import os
 import subprocess
 import sys
+import uuid
+from pathlib import Path
 
 from ai_test_case_generator.schemas.evidence import EvidenceReport, MutantResult
+from ai_test_case_generator.schemas.generator import GeneratorOutput
 from evals.reference_app.bugs import SEEDED_BUG_CLASSES
+
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 
 def _run_pytest(test_file_path: str, bug: str | None) -> set[str]:
@@ -61,6 +66,21 @@ def run_suite(test_file_path: str) -> EvidenceReport:
     return EvidenceReport(
         baseline_passed=baseline_passed, mutant_results=mutant_results, kill_rate=kill_rate
     )
+
+
+class FileHarness:
+    """Adapts run_suite() to the orchestrator's Harness protocol
+    (evaluate(gen_output) -> EvidenceReport). Writes the generated code to a
+    throwaway file under evals/fixtures/ (so conftest.py's `client` fixture
+    is discoverable), runs the harness, then deletes the file."""
+
+    def evaluate(self, gen_output: GeneratorOutput) -> EvidenceReport:
+        temp_path = FIXTURES_DIR / f"_generated_{uuid.uuid4().hex}.py"
+        temp_path.write_text(gen_output.test_file_code)
+        try:
+            return run_suite(str(temp_path))
+        finally:
+            temp_path.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
